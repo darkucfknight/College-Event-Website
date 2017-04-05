@@ -1,56 +1,41 @@
 <?php
 
-include("config.php");
-session_start();
+$dbhost = "localhost";
+$dbuser = "web";
+$dbpass = "passworduser";
+$dbname = "eventsite";
+$db = mysqli_connect($dbhost,$dbuser,$dbpass,$dbname) or die("cannot connect"); 
+
+ 
+mysqli_select_db($db, $dbname) or die("cannot select DB");
+
+$email =      $_POST ['email'];
+$password =           $_POST ['password'];
+
+$login_ok = false;
+
+///CHECK IF ACCOUNT IS IN DATABASE
+// http://forums.devshed.com/php-faqs-stickies-167/program-basic-secure-login-system-using-php-mysql-891201.html
+
+$query = 
+"SELECT * FROM students
+ WHERE 'email' = '$email'";
 
 
-$error = "";
-if($_SERVER["REQUEST_METHOD"] == "POST") {
 
-	$myemail = $_POST['email'];
-	$mypassword = $_POST['password'];
 
-	$sql = "SELECT * FROM users WHERE email = '$myemail' AND pssword = '$mypassword'";
-    $result = mysqli_query($db,$sql);
-      $row = mysqli_fetch_array($result,MYSQLI_ASSOC);
-      $active = $row['active'];
-      
-      $count = mysqli_num_rows($result);
-      
-      // If result matched $myusername and $mypassword, table row must be 1 row
-		
-      if($count == 1) {
-         
-         $_SESSION["email"] = $row["email"];
-         
-         header("location: index.php");
-      }else {
-         $error = "Your Login Email or Password is invalid";
-         
-      }
-   }
+$result = mysqli_query($db, $query);
+
+if(mysqli_num_rows($result)){
+	$login_ok = true;
+}
+
+echo $login_ok;
+
+
+// header("Location: loginBootstrap.html"); 
+            //die("Redirecting to: loginBootstrap.html");
+Echo "Database Saved"; 
+mysqli_close($db);
+
 ?>
-<head>
-  <link rel="stylesheet" type="text/css" href="login_css.css">
-  
-
-</head>
-
-<br><br>
-<H1 align  = "center"> EventSite </H1>
-<div class="login-page">
-  <div class="form">
-    
-    <form class="login-form" action="login.php" method="POST">
-      <input type="text" name="email" placeholder="Email"/>
-      <input type="password" name="password" placeholder="Password"/>
-      <button>login</button>
-      <p class="message">Not registered? <a href="register.php">Create an account</a></p>
-      </form>
-      <?php echo $error; ?>
-  </div>
-</div>
-
-
-
-
